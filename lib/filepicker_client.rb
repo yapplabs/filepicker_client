@@ -151,8 +151,7 @@ class FilepickerClient
     uri.query = URI.encode_www_form(query_params)
 
     resource = get_fp_resource uri
-
-    response = resource.post url: file_url.to_s
+    response = resource.post("url=#{CGI::escape(file_url)}", content_type: 'text/plain')
 
     if response.code == 200
       response_data = JSON.parse response.body
