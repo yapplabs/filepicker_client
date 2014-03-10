@@ -95,7 +95,7 @@ class FilepickerClient
     )
 
     uri = file_uri(handle)
-    uri.query = URI.encode_www_form(
+    uri.query = encode_uri_query(
       signature: signage[:signature],
       policy: signage[:encoded_policy]
     )
@@ -120,7 +120,7 @@ class FilepickerClient
       policy: signage[:encoded_policy]
     }
     query_params[:path] = signage[:policy]['path'] if path
-    uri.query = URI.encode_www_form(query_params)
+    uri.query = encode_uri_query(query_params)
     resource = get_fp_resource uri
 
     response = resource.post fileUpload: file
@@ -149,7 +149,7 @@ class FilepickerClient
       policy: signage[:encoded_policy]
     }
     query_params[:path] = signage[:policy]['path'] if path
-    uri.query = URI.encode_www_form(query_params)
+    uri.query = encode_uri_query(query_params)
 
     resource = get_fp_resource uri
 
@@ -197,7 +197,7 @@ class FilepickerClient
       storeLocation: 'S3'
     )
     options[:storePath] = signage[:policy]['path'] if path
-    uri.query = URI.encode_www_form(options)
+    uri.query = encode_uri_query(options)
 
     resource = get_fp_resource uri
 
@@ -253,7 +253,7 @@ class FilepickerClient
       signature: signage[:signature],
       policy: signage[:encoded_policy]
     )
-    uri.query = URI.encode_www_form(options)
+    uri.query = encode_uri_query(options)
 
     resource = get_fp_resource uri
 
@@ -293,7 +293,7 @@ class FilepickerClient
     signage = sign(handle: handle, call: :write)
 
     uri = file_uri(handle)
-    uri.query = URI.encode_www_form(
+    uri.query = encode_uri_query(
       key: @api_key,
       signature: signage[:signature],
       policy: signage[:encoded_policy]
@@ -318,7 +318,7 @@ class FilepickerClient
     signage = sign(handle: handle, call: :writeUrl)
 
     uri = file_uri(handle)
-    uri.query = URI.encode_www_form(
+    uri.query = encode_uri_query(
       key: @api_key,
       signature: signage[:signature],
       policy: signage[:encoded_policy]
@@ -342,7 +342,7 @@ class FilepickerClient
     signage = sign(handle: handle, call: :remove)
 
     uri = file_uri(handle)
-    uri.query = URI.encode_www_form(
+    uri.query = encode_uri_query(
       key: @api_key,
       signature: signage[:signature],
       policy: signage[:encoded_policy]
@@ -371,6 +371,28 @@ class FilepickerClient
 
   def convert_hash(hash)
     HashWithIndifferentAccess.new(hash)
+  end
+
+  # Convert a hash of query params into a string.
+  # This method does not encode the signature or policy params, as they are
+  # already encoded in the format expected by the Filepicker API
+  def encode_uri_query(params)
+    encodable = {}
+    unencodable = {}
+    unencodable_params = ["signature", "policy"]
+    params.each_pair do |key, value|
+      if unencodable_params.include?(key.to_s)
+        unencodable[key] = value
+      else
+        encodable[key] = value
+      end
+    end
+    query = URI.encode_www_form(encodable)
+    unless unencodable.empty?
+      query << '&' if query.length > 0
+      query << unencodable.map{|k,v| "#{k}=#{v}"}.join('&')
+    end
+    query
   end
 end
 
