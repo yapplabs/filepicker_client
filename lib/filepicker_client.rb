@@ -26,7 +26,8 @@ class FilepickerClient
   #
   # * expiration_start - Time from which the expiry value should start
   # * expiry - Seconds until the signature should expire (defaults to DEFAULT_POLICY_EXPIRY)
-  # * call - Filepicker calls to allow (String, Symbol or Array of the following: 'read', 'stat', 'convert', 'write', 'writeUrl', 'pick', 'store', 'storeUrl')
+  # * call - Filepicker calls to allow (String, Symbol or Array of the following:
+  #          'read', 'stat', 'write', 'writeUrl', 'store', 'convert', 'remove'
   # * handle - Handle of the specific file to grant permissions for
   # * path - Path in the storage that Filepicker uploads to that the operations should be restricted to
   # * min_size - Minimum allowed upload size
